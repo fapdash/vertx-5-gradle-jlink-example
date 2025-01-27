@@ -1,0 +1,26 @@
+= Vert.x 5 Gradle jlink example
+
+image:https://img.shields.io/badge/vert.x-5.0.0.CR3-purple.svg[link="https://vertx.io"]
+
+This application was generated using http://start.vertx.io
+
+== Build and run project through runtime image with jlink
+
+First build the runtime image:
+
+----
+./gradlew clean jlink
+----
+
+Then run the Vert.x application through the native image launcher:
+
+----
+build/jlink-image-test/bin/launch
+----
+
+== Help
+
+* https://vertx.io/docs/[Vert.x Documentation]
+* https://stackoverflow.com/questions/tagged/vert.x?sort=newest&pageSize=15[Vert.x Stack Overflow]
+* https://groups.google.com/forum/?fromgroups#!forum/vertx[Vert.x User Group]
+* https://discord.gg/6ry7aqPWXy[Vert.x Discord]
