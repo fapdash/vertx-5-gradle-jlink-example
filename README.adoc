@@ -1,26 +1,34 @@
-= Vert.x 5 Gradle jlink example
+= Vert.x 5 Gradle Redeploy Plugin Example
 
-image:https://img.shields.io/badge/vert.x-5.0.0.CR3-purple.svg[link="https://vertx.io"]
+image:https://img.shields.io/badge/vert.x-5.0.0.CR4-purple.svg[link="https://vertx.io"]
 
-This application was generated using http://start.vertx.io
+The plugin is in `gradle/plugins/redeploy-plugin`.
+It uses internal Gradle functionality sort of documented here: https://discuss.gradle.org/t/how-to-restart-a-run-in-continuous-mode/23221
 
-== Build and run project through runtime image with jlink
+Gradle supports to start tasks in continuous mode, via `--continuous`, but this expects tasks that stop.
+Continuous mode restarts the task when it detects changes to files relevant to that task, but if the task is still running it waits with the restart until the task finishes.
+The problem is that the `run` task never stops, as it's running the application.
 
-First build the runtime image:
+If we start a `DeploymentHandle` via the `DeploymentRegistry` in the task, then Gradle automatically switches into continuous mode:
+
+```
+Reloadable deployment detected. Entering continuous build.
+```
+
+It will then restart the application on file changes, even though the application started by the task is still running.
+
+== Starting Vert.x application with hot reload
+
+
+Run the task:
 
 ----
-./gradlew clean jlink
+./gradlew vertxRun
 ----
 
-Then run the Vert.x application through the native image launcher:
+If you now make changes to `MainVerticle.java` you should see:
 
-----
-build/jlink-image-test/bin/launch
-----
-
-== Help
-
-* https://vertx.io/docs/[Vert.x Documentation]
-* https://stackoverflow.com/questions/tagged/vert.x?sort=newest&pageSize=15[Vert.x Stack Overflow]
-* https://groups.google.com/forum/?fromgroups#!forum/vertx[Vert.x User Group]
-* https://discord.gg/6ry7aqPWXy[Vert.x Discord]
+```
+modified: /module-example/src/main/java/com/example/module_example/MainVerticle.java
+Change detected, executing build...
+```

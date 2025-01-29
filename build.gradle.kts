@@ -3,6 +3,7 @@ import org.gradle.api.tasks.testing.logging.TestLogEvent.*
 plugins {
   java
   application
+  id("com.example.gradle.plugins.redeploy")
 }
 
 group = "com.example"
@@ -12,15 +13,21 @@ repositories {
   mavenCentral()
 }
 
-val vertxVersion = "5.0.0.CR3"
+val vertxVersion = "5.0.0.CR4"
 val junitJupiterVersion = "5.9.1"
 
-val launcherModule = "com.example.module_example"
-val launcherClassName = "com.example.module_example.MainVerticle"
+val mainVerticleModule = "com.example.module_example"
+val mainVerticleClassName = "com.example.module_example.MainVerticle"
+val launcherModule = "io.vertx.launcher.application"
+val launcherClassName = "io.vertx.launcher.application.VertxApplication"
 
 application {
-  mainModule.set(launcherModule)
-  mainClass.set(launcherClassName)
+  mainModule.set(mainVerticleModule)
+  mainClass.set(mainVerticleClassName)
+}
+
+tasks.named<JavaExec>("run") {
+    args = listOf(mainVerticleClassName)
 }
 
 dependencies {
@@ -34,30 +41,6 @@ dependencies {
 java {
   sourceCompatibility = JavaVersion.VERSION_21
   targetCompatibility = JavaVersion.VERSION_21
-}
-
-
-tasks.register<JavaExec>("jlink") {
-    group = "build"
-
-    dependsOn(project.tasks.first { it.name.contains("build") })
-
-    mainClass.set("jdk.tools.jlink.internal.Main")
-    mainModule.set("jdk.jlink")
-
-    var modulePath = files()
-    modulePath.from(configurations.runtimeClasspath)
-    modulePath.from(tasks.jar)
-    args = listOf(
-            "--module-path",
-            modulePath.joinToString(":"),
-            "--add-modules",
-            "java.base,java.compiler,java.logging,java.naming,jdk.unsupported,${application.mainModule.get()}",
-            "--output",
-            "build/jlink-image-test",
-            "--launcher",
-            "launch=${application.mainModule.get()}/${application.mainClass.get()}"
-    )
 }
 
 tasks.withType<Test> {
